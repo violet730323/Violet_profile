@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Recommendation System · Violet Zhao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e0b;
+  --bg2:#111612;
+  --bg3:#161c17;
+  --bg4:#1c231d;
+  --accent:#4ade80;
+  --accent2:#22c55e;
+  --accent-dim:#1a3d24;
+  --accent-dimmer:#0f2118;
+  --text:#e8f0e9;
+  --text2:#9ab09c;
+  --text3:#5a7a5c;
+  --border:#1f2e21;
+  --border2:#2a3e2c;
+  --red:#f87171;
+  --amber:#fbbf24;
+  --purple:#a78bfa;
+  --purple-dim:#2d1f5e;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7;min-height:100vh}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,14,11,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px}
+.nav-left{display:flex;align-items:center;gap:1.5rem}
+.nav-logo{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:0.05em}
+.nav-links{display:flex;gap:0}
+.nav-links a{font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;padding:0.4rem 0.75rem;border-radius:4px;transition:color 0.2s,background 0.2s;letter-spacing:0.03em}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);background:var(--accent-dimmer)}
+.nav-right{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+.hero{padding:120px 3rem 80px;max-width:900px;margin:0 auto}
+.hero-tag{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+.hero-tag::before{content:'';width:24px;height:1px;background:var(--accent)}
+h1{font-family:var(--mono);font-size:clamp(28px,4vw,48px);font-weight:500;line-height:1.15;color:var(--text);margin-bottom:1.5rem;letter-spacing:-0.02em}
+h1 span{color:var(--accent)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:2rem}
+.tag{font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--border2);border-radius:3px;color:var(--text3);letter-spacing:0.05em}
+.tag.green{border-color:var(--accent-dim);color:var(--accent);background:var(--accent-dimmer)}
+.hero-summary{font-size:16px;color:var(--text2);max-width:620px;line-height:1.8;border-left:2px solid var(--accent-dim);padding-left:1.25rem}
+
+.section{padding:80px 3rem;max-width:900px;margin:0 auto}
+.section-label{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem}
+.section-label span{color:var(--text3)}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);margin-bottom:1.5rem;letter-spacing:-0.01em}
+h3{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--text);margin-bottom:0.75rem}
+
+.divider{height:1px;background:var(--border);margin:0 3rem}
+
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.5rem}
+.problem-cell{background:var(--bg2);padding:1.5rem}
+.problem-cell .label{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.5rem}
+.problem-cell p{font-size:14px;color:var(--text2);line-height:1.7}
+.problem-cell.highlight{background:var(--accent-dimmer)}
+.problem-cell.highlight p{color:var(--text)}
+
+.big-num{font-family:var(--mono);font-size:56px;font-weight:500;line-height:1;color:var(--accent)}
+.big-num.amber{color:var(--amber)}
+.big-num.purple{color:var(--purple)}
+.big-num.red{color:var(--red)}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.5rem}
+.stat-cell{background:var(--bg2);padding:1.5rem;text-align:center}
+.stat-val{font-family:var(--mono);font-size:40px;font-weight:500;line-height:1;margin-bottom:0.4rem}
+.stat-lbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase}
+.stat-sub{font-size:12px;color:var(--text3);margin-top:0.3rem}
+
+.pipeline{display:flex;align-items:stretch;gap:0;margin-top:1.5rem;background:var(--border);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.pipe-step{flex:1;background:var(--bg2);padding:1.25rem 1rem;text-align:center;position:relative}
+.pipe-step:not(:last-child)::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:14px;color:var(--text3);z-index:1;background:var(--border);width:20px;display:flex;align-items:center;justify-content:center}
+.pipe-num{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;margin-bottom:0.4rem}
+.pipe-name{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500;margin-bottom:0.3rem}
+.pipe-desc{font-size:11px;color:var(--text3);line-height:1.4}
+
+.findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.5rem}
+.finding-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem}
+.finding-num{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:0.75rem}
+.finding-title{font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:0.75rem;font-weight:500}
+.finding-body{font-size:13px;color:var(--text2);line-height:1.7}
+.finding-stat{font-family:var(--mono);font-size:28px;color:var(--text);margin:0.75rem 0 0.25rem;font-weight:500}
+.finding-image{margin-top:1rem;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.finding-image img{width:100%;display:block}
+
+.bar-chart{margin-top:1rem}
+.bar-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem}
+.bar-label{font-family:var(--mono);font-size:11px;color:var(--text2);width:140px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(0.34,1.2,0.64,1)}
+.bar-fill.accent{background:var(--accent)}
+.bar-fill.amber{background:var(--amber)}
+.bar-fill.purple{background:var(--purple)}
+.bar-fill.red{background:var(--red)}
+.bar-val{font-family:var(--mono);font-size:11px;color:var(--text3);width:45px;flex-shrink:0}
+
+/* FLOW DIAGRAM */
+.flow-wrap{margin-top:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:2rem;overflow:hidden}
+.flow-title{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem}
+.flow-top{display:flex;justify-content:center;margin-bottom:1rem}
+.flow-box{font-family:var(--mono);font-size:12px;padding:8px 18px;border-radius:4px;text-align:center;line-height:1.4}
+.flow-box.root{background:var(--bg4);border:1px solid var(--border2);color:var(--text)}
+.flow-box.path1{background:var(--accent-dimmer);border:1px solid var(--accent-dim);color:var(--accent)}
+.flow-box.path2{background:var(--purple-dim);border:1px solid #4c3a8a;color:var(--purple)}
+.flow-box.decision{background:#2d2510;border:1px solid #4a3a18;color:var(--amber);font-size:11px}
+.flow-box.output{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:11px}
+.flow-connector{display:flex;justify-content:center;font-family:var(--mono);font-size:14px;color:var(--text3);margin:4px 0}
+.flow-branches{display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin-bottom:1rem}
+.flow-branch{display:flex;flex-direction:column;align-items:center;gap:6px}
+.flow-branch-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em}
+.flow-mid{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--text3);padding:0 0.5rem}
+.flow-steps{display:flex;flex-direction:column;gap:4px;align-items:center}
+.flow-step{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:5px 10px;text-align:center;width:100%}
+
+/* FORMULA */
+.formula-box{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:1.25rem 1.5rem;margin:1rem 0;font-family:var(--mono);font-size:13px;color:var(--text);display:flex;align-items:center;gap:0.75rem}
+.formula-box .f-label{color:var(--text3);font-size:11px;flex-shrink:0}
+
+/* PATH TOGGLE */
+.path-toggle{display:flex;gap:8px;margin-bottom:1.5rem}
+.path-btn{font-family:var(--mono);font-size:12px;padding:8px 18px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--text3);cursor:pointer;transition:all 0.2s}
+.path-btn.active-p1{border-color:var(--accent-dim);background:var(--accent-dimmer);color:var(--accent)}
+.path-btn.active-p2{border-color:#4c3a8a;background:var(--purple-dim);color:var(--purple)}
+
+.path-content{display:none}
+.path-content.visible{display:block}
+
+.method-table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:13px}
+.method-table th{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border)}
+.method-table td{padding:0.6rem 0.75rem;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:top}
+.method-table td:first-child{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap}
+.method-table tr:last-child td{border-bottom:none}
+
+.sku-chart{margin-top:1.5rem}
+.sku-visual{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem}
+.sku-curve{width:100%;height:120px;position:relative;margin:1rem 0}
+
+/* DEMO EMBED */
+.demo-frame{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.5rem;background:white}
+
+footer{border-top:1px solid var(--border);padding:2rem 3rem;max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+footer .f-left{font-family:var(--mono);font-size:12px;color:var(--text3)}
+footer .f-right{display:flex;gap:1rem}
+footer a{font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;transition:color 0.2s}
+footer a:hover{color:var(--accent)}
+
+@media(max-width:680px){
+  .hero,.section{padding-left:1.5rem;padding-right:1.5rem}
+  .problem-grid,.findings-grid,.stat-row{grid-template-columns:1fr}
+  .pipeline{flex-direction:column}
+  .pipe-step:not(:last-child)::after{display:none}
+  nav{padding:0 1rem}
+  .nav-links{display:none}
+  .flow-branches{grid-template-columns:1fr}
+  .big-num{font-size:40px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <span class="nav-logo">violet.zhao</span>
+    <div class="nav-links">
+      <a href="#problem" class="nav-link">problem</a>
+      <a href="#data" class="nav-link">data</a>
+      <a href="#methods" class="nav-link">methods</a>
+      <a href="#findings" class="nav-link">findings</a>
+      <a href="#demo" class="nav-link">demo</a>
+    </div>
+  </div>
+  <div class="nav-right">case_study_02</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Supply Chain Analytics · William and Mary MSBA · Spring 2026</div>
+  <h1>Product Recommendation<br>System for<br><span>Medical Surgical Distribution</span></h1>
+  <div class="hero-meta">
+    <span class="tag green">Collaborative Filtering</span>
+    <span class="tag green">Hierarchical Clustering</span>
+    <span class="tag">Python · DuckDB</span>
+    <span class="tag">Cold Start Strategy</span>
+    <span class="tag">115M Transactions</span>
+    <span class="tag">1.13M Customers</span>
+  </div>
+  <p class="hero-summary">Built a two-path recommendation engine to surface cross-sell opportunities across 1.13 million B2B customer accounts. A core finding was that 66% of registered accounts had never placed an order in two years — a segment that had not been previously analyzed and became the basis for a dedicated cold-start strategy.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<div class="section" id="problem">
+  <div class="section-label">01 <span>/ 05</span> Problem Statement</div>
+  <h2>When reps rely on memory alone</h2>
+  <p style="color:var(--text2);margin-bottom:1.5rem;font-size:14px;max-width:640px">Sales representatives were managing 386,000 active accounts with no systematic tool to guide cross-sell conversations. Opportunities were missed not because the data was unavailable, but because no infrastructure existed to act on it.</p>
+
+  <div class="problem-grid">
+    <div class="problem-cell highlight">
+      <div class="label">Core challenge</div>
+      <p>Every rep-customer interaction was reactive. Reps quoted only what was requested. No tool existed to proactively surface relevant products the customer had not yet considered.</p>
+    </div>
+    <div class="problem-cell">
+      <div class="label">What we set out to build</div>
+      <p>A recommendation engine that generates two ranked product lists per customer: one based on what similar customers buy, and one based on what complements what the customer already owns.</p>
+    </div>
+    <div class="problem-cell">
+      <div class="label">Why two paths are necessary</div>
+      <p>A model trained on purchase history fails entirely for customers with no purchase records. 745K accounts had zero transactions. A separate cold-start strategy was required specifically for them.</p>
+    </div>
+    <div class="problem-cell">
+      <div class="label">Scale</div>
+      <p>Three source datasets, over 115 million transaction rows, 1.13 million registered accounts. All processed in Python using DuckDB to avoid memory overflow on standard hardware.</p>
+    </div>
+  </div>
+
+  <!-- Key numbers -->
+  <div class="stat-row" style="margin-top:1.5rem">
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--accent)">1.13M</div>
+      <div class="stat-lbl">total registered accounts</div>
+      <div class="stat-sub">across all market segments</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--amber)">66%</div>
+      <div class="stat-lbl">had never placed an order</div>
+      <div class="stat-sub">over the two-year window</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--accent)">115M+</div>
+      <div class="stat-lbl">transaction rows processed</div>
+      <div class="stat-sub">consolidated to 387K customer profiles</div>
+    </div>
+  </div>
+
+  <!-- Active vs dormant toggle -->
+  <div style="margin-top:2rem">
+    <h3>Active vs dormant customer split</h3>
+    <p style="font-size:13px;color:var(--text3);font-family:var(--mono);margin-bottom:1.25rem">// click to compare the two segments</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <div id="panel-active" style="background:var(--accent-dimmer);padding:2rem;transition:opacity 0.3s">
+        <div class="big-num">386K</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:0.5rem 0 1rem">Active Customers</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;padding:0.75rem;background:var(--bg3);border-radius:4px;border-left:2px solid var(--accent-dim)">Purchased at least once in the two-year observation window. Served by the personalized collaborative filtering path. Two ranked lists generated per customer.</div>
+      </div>
+      <div id="panel-dormant" style="background:var(--bg2);padding:2rem;opacity:0.5;transition:opacity 0.3s;cursor:pointer" onclick="toggleSegment()">
+        <div class="big-num amber">745K</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin:0.5rem 0 1rem">Dormant Customers</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;padding:0.75rem;background:var(--bg3);border-radius:4px;border-left:2px solid #4a3a18">No purchase activity for two or more years. Previously unanalyzed. Account tenure analysis confirmed these are not new registrations — the majority had been registered for multiple years before going silent.</div>
+      </div>
+    </div>
+    <p id="seg-insight" style="margin-top:1rem;font-size:13px;color:var(--text3);font-family:var(--mono);padding:0.75rem;background:var(--bg2);border-radius:4px;border-left:2px solid var(--border2)">// 386K active customers are well understood. The 745K dormant accounts are where the untapped opportunity lies.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- DATA -->
+<div class="section" id="data">
+  <div class="section-label">02 <span>/ 05</span> Data and Cleaning</div>
+  <h2>Three datasets, 115 million rows, one customer view</h2>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">01</div>
+      <div class="pipe-name">Sources</div>
+      <div class="pipe-desc">Item master, customer profiles for 1.13M accounts, sales transactions across two annual files</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">02</div>
+      <div class="pipe-name">Cleaning</div>
+      <div class="pipe-desc">Removed returns, freight charges, internal transfers, and fields with more than 95% null values</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">03</div>
+      <div class="pipe-name">Features</div>
+      <div class="pipe-desc">Aggregated 115M rows into 387K customer profiles across 14 features: spend, recency, frequency, brand share, purchase history</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">04</div>
+      <div class="pipe-name">Segmentation</div>
+      <div class="pipe-desc">Gower distance clustering with Ward linkage, evaluated across three statistical benchmarks, settled on k=14</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">05</div>
+      <div class="pipe-name">Cold Start</div>
+      <div class="pipe-desc">Dormant accounts mapped to 47 sub-segments derived from the active customer taxonomy</div>
+    </div>
+  </div>
+
+  <!-- Custom features -->
+  <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.08em;margin-bottom:0.75rem">ENGINEERED FEATURES</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">items_bought</span>: dict of item IDs and quantities purchased</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">has_purchase_history</span>: binary flag, routes Path 1 vs Path 2</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">pct_mck_brand</span>: private-label share per customer</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">recency_days</span>: days since last order</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">account_span_days</span>: customer tenure</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.08em;margin-bottom:0.75rem">DATA CHALLENGES</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <div style="font-size:13px;color:var(--text2)">→ 115M+ rows exceeded pandas memory limits, resolved with DuckDB</div>
+        <div style="font-size:13px;color:var(--text2)">→ 5,233 ghost purchasing accounts: transactions but zero real product purchases</div>
+        <div style="font-size:13px;color:var(--text2)">→ Non-product items misclassified as purchases, corrected via keyword filtering</div>
+        <div style="font-size:13px;color:var(--text2)">→ Mixed data types across customer features required Gower distance for clustering</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cluster selection -->
+  <div style="margin-top:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:1rem">CLUSTER SELECTION: HOW WE CHOSE K=14</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:1rem">
+      <div style="background:var(--bg3);padding:1rem;text-align:center">
+        <div style="font-family:var(--mono);font-size:28px;font-weight:500;color:var(--accent)">k=14</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:0.08em;margin-top:0.3rem">SELECTED</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:0.4rem">strong CH signal, balanced segment sizes</div>
+      </div>
+      <div style="background:var(--bg3);padding:1rem;text-align:center">
+        <div style="font-family:var(--mono);font-size:28px;font-weight:500;color:var(--text2)">17%</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;margin-top:0.3rem">LARGEST SEGMENT</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:0.4rem">vs 44% at k=5, far better balance</div>
+      </div>
+      <div style="background:var(--bg3);padding:1rem;text-align:center">
+        <div style="font-family:var(--mono);font-size:28px;font-weight:500;color:var(--text2)">3</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;margin-top:0.3rem">VALIDATION METRICS</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:0.4rem">Calinski-Harabasz, Davies-Bouldin, Silhouette</div>
+      </div>
+    </div>
+    <!-- Cluster bar chart -->
+    <div class="bar-chart">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:0.75rem">Dormancy rate by market segment</div>
+      <div class="bar-row">
+        <div class="bar-label">Long Term Care</div>
+        <div class="bar-track"><div class="bar-fill red" style="width:75%"></div></div>
+        <div class="bar-val">75%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Post Acute Care</div>
+        <div class="bar-track"><div class="bar-fill amber" style="width:68%"></div></div>
+        <div class="bar-val">68%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Primary Care</div>
+        <div class="bar-track"><div class="bar-fill amber" style="width:56%"></div></div>
+        <div class="bar-val">56%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Physician Office</div>
+        <div class="bar-track"><div class="bar-fill accent" style="width:48%"></div></div>
+        <div class="bar-val">48%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- METHODS -->
+<div class="section" id="methods">
+  <div class="section-label">03 <span>/ 05</span> Methods</div>
+  <h2>Two paths, one output format</h2>
+
+  <!-- Flow diagram -->
+  <div class="flow-wrap">
+    <div class="flow-title">END-TO-END SYSTEM FLOW</div>
+    <div class="flow-top">
+      <div class="flow-box root">All 1.13M Customers</div>
+    </div>
+    <div class="flow-connector">↓</div>
+    <div class="flow-top">
+      <div class="flow-box decision">Has Purchase History?</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 80px 1fr;margin:0.75rem 0">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--accent)">YES → 386K customers</div>
+        <div class="flow-box path1">PATH ONE</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-step" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;width:100%">Gower Distance Clustering<br>14 Behavioral Segments</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-step" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;width:100%">Collaborative Filtering 65%<br>+ Cluster Popularity 35%</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-step" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;width:100%">Brand Penalty Applied<br>Private label x1.0 / Third-party x0.65</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-box output" style="border-color:var(--accent-dim);color:var(--accent);background:var(--accent-dimmer)">hybrid_recs + complement_recs</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;color:var(--border2)">|</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--purple)">NO → 745K customers</div>
+        <div class="flow-box path2">PATH TWO</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-step" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;width:100%">Segment Lookup<br>47 sub-segments from active base</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-step" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;width:100%">Exact match found?<br>Yes: segment Top 5 / No: class fallback</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-step" style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;width:100%">Products ranked by number of<br>distinct customers who purchased</div>
+        <div class="flow-connector">↓</div>
+        <div class="flow-box output" style="border-color:#4c3a8a;color:var(--purple);background:var(--purple-dim)">cold_start_recs (Top 5 per segment)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Path toggle -->
+  <div style="margin-top:2rem">
+    <h3>Explore each path in detail</h3>
+    <div class="path-toggle" style="margin-top:1rem">
+      <button class="path-btn active-p1" id="btn-p1" onclick="switchPath(1)">Path 1: Active Customers</button>
+      <button class="path-btn" id="btn-p2" onclick="switchPath(2)">Path 2: Cold Start</button>
+    </div>
+
+    <div id="path1-content" class="path-content visible">
+      <div style="background:var(--bg2);border:1px solid var(--accent-dim);border-radius:8px;padding:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.1em;margin-bottom:1rem">PATH ONE: PERSONALIZED RECOMMENDATIONS</div>
+        <p style="font-size:14px;color:var(--text2);margin-bottom:1.25rem">Active customers are assigned to one of 14 behavioral clusters. Two ranked lists are generated per customer using a dual-engine approach.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:1rem">
+            <div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:0.5rem">HYBRID LIST</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.6">Find the 10 most similar customers within the cluster using cosine similarity. Pool their purchase histories and blend with cluster-level popularity signal.</div>
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:1rem">
+            <div style="font-family:var(--mono);font-size:11px;color:var(--purple);margin-bottom:0.5rem">COMPLEMENT LIST</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.6">For each item the customer already owns, identify products frequently bought alongside it by other customers in the cluster. Filter to exclude same-subcategory items to avoid substitutes.</div>
+          </div>
+        </div>
+
+        <div class="formula-box">
+          <span class="f-label">HYBRID SCORE</span>
+          <span style="color:var(--text2)">(0.65 × purchase_signal + 0.35 × popularity_signal) × brand_penalty</span>
+        </div>
+        <div class="formula-box">
+          <span class="f-label">COMPLEMENT SCORE</span>
+          <span style="color:var(--text2)">(0.70 × max_linkage) + (0.30 × avg_linkage)</span>
+        </div>
+        <div style="font-size:13px;color:var(--text3);font-family:var(--mono);padding:0.75rem;background:var(--bg4);border-radius:4px;border-left:2px solid var(--border2)">brand_penalty: private label products × 1.0 / third-party products × 0.65</div>
+      </div>
+    </div>
+
+    <div id="path2-content" class="path-content">
+      <div style="background:var(--bg2);border:1px solid #4c3a8a;border-radius:8px;padding:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--purple);letter-spacing:0.1em;margin-bottom:1rem">PATH TWO: COLD START BRIDGE GROUP STRATEGY</div>
+        <p style="font-size:14px;color:var(--text2);margin-bottom:1.25rem">No purchase history means collaborative filtering fails entirely. The solution: match dormant accounts to the most behaviorally similar active-customer segment, then recommend what that segment actually buys.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:1.25rem">
+          <div style="background:var(--bg3);padding:1rem;text-align:center">
+            <div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--purple);margin-bottom:0.3rem">01</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--purple);margin-bottom:0.5rem">IDENTIFY</div>
+            <div style="font-size:12px;color:var(--text3)">Active customers grouped into 47 sub-segments using institutional taxonomy</div>
+          </div>
+          <div style="background:var(--bg3);padding:1rem;text-align:center">
+            <div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--purple);margin-bottom:0.3rem">02</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--purple);margin-bottom:0.5rem">MATCH</div>
+            <div style="font-size:12px;color:var(--text3)">Each dormant account matched to the sub-segment sharing the same institution type</div>
+          </div>
+          <div style="background:var(--bg3);padding:1rem;text-align:center">
+            <div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--purple);margin-bottom:0.3rem">03</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--purple);margin-bottom:0.5rem">RECOMMEND</div>
+            <div style="font-size:12px;color:var(--text3)">Top products ranked by distinct customer penetration. Fallback to class level if no exact match</div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;color:var(--text3);font-family:var(--mono);padding:0.75rem;background:var(--bg4);border-radius:4px;border-left:2px solid #4c3a8a">Result: every cold-start customer receives a ranked product list matched to their institution type, ready for sales rep outreach</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Method table -->
+  <div style="margin-top:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    <table class="method-table">
+      <thead>
+        <tr><th>Component</th><th>Approach</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Distance metric</td><td>Gower distance for mixed data types across 386K customer profiles</td></tr>
+        <tr><td>Clustering</td><td>Hierarchical clustering with Ward linkage, minimizes within-cluster variance</td></tr>
+        <tr><td>Cluster selection</td><td>Calinski-Harabasz, Davies-Bouldin, and Silhouette score evaluation</td></tr>
+        <tr><td>Active recs</td><td>Cosine similarity collaborative filtering blended with cluster popularity</td></tr>
+        <tr><td>Brand uplift</td><td>Private-label penalty scoring applied to both recommendation lists</td></tr>
+        <tr><td>Complement scoring</td><td>Co-purchase index with cross-subcategory filter to exclude substitutes</td></tr>
+        <tr><td>Cold-start recs</td><td>Bridge Group segment matching with class-level fallback</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FINDINGS -->
+<div class="section" id="findings">
+  <div class="section-label">04 <span>/ 05</span> Key Findings</div>
+  <h2>What the data revealed</h2>
+
+  <div class="findings-grid">
+    <div class="finding-card">
+      <div class="finding-num">FINDING_01</div>
+      <div class="finding-title">The invisible majority</div>
+      <div class="finding-stat" style="color:var(--amber)">745K accounts</div>
+      <div class="finding-body">Of 1.13 million registered accounts, 745,000 — a 66% dormancy rate — had placed no orders in two years. Tenure data confirmed these were long-standing accounts, not new sign-ups, that never converted.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">These accounts have already cleared the acquisition barrier — activation through targeted recommendations is a lower-cost path to revenue than new customer outreach.</div>
+      <div class="finding-image"><img src="mckesson_find1.png" alt="Illustration of 1.13 million registered accounts split into a 66% dormant invisible majority"></div>
+    </div>
+
+    <div class="finding-card">
+      <div class="finding-num">FINDING_02</div>
+      <div class="finding-title">SKU concentration</div>
+      <div class="finding-stat" style="color:var(--accent)">91.2% of volume</div>
+      <div class="finding-body">The top 10% of SKUs accounted for 91.2% of all purchases; 46% of purchased SKUs were bought by fewer than five customers. Most accounts repeatedly ordered the same core items, with little exposure to the broader catalog.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">This reflects a lack of visibility, not a lack of need — customers buy what they're shown. The recommendation system surfaces relevant products outside each customer's existing purchase history.</div>
+      <div class="finding-image"><img src="mckesson_find2.png" alt="Illustration of the top 10% of SKUs driving 91.2% of purchase volume"></div>
+    </div>
+
+    <div class="finding-card">
+      <div class="finding-num">FINDING_03</div>
+      <div class="finding-title">Private label opportunity</div>
+      <div class="finding-stat" style="color:var(--accent)">31% mean share</div>
+      <div class="finding-body">Across 386,103 active customers, mean private-label share was ~31% — nearly 70% of purchases flowed to third-party suppliers. Since private-label carries higher margins, this gap is a measurable, recoverable profit opportunity.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">High-spending accounts with low private-label share are the highest-priority targets — their volume is already proven, so a brand-mix shift has outsized impact. A brand uplift layer redirects eligible purchases toward McKesson private-label alternatives.</div>
+      <div class="finding-image"><img src="Gemini_Generated_Image_pzgf65pzgf65pzgf (1).png" alt="Illustration comparing the active base's private-label share against high-spending customers' opportunity for private-label uplift"></div>
+    </div>
+
+    <div class="finding-card">
+      <div class="finding-num">FINDING_04</div>
+      <div class="finding-title">Segment-level dormancy</div>
+      <div class="finding-stat" style="color:var(--amber)">75% in LTC</div>
+      <div class="finding-body">Long Term Care shows the highest dormancy rate at 75%. Primary Care carries the largest volume of dormant accounts at 423,585. Post Acute Care shows the widest gap between its active and dormant sub-segments.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">All three segments share the same pattern: real, ongoing demand that never converted. These accounts represent acquisition costs already spent but revenue not yet realized — the most actionable targets for cold-start recommendations.</div>
+      <div class="finding-image"><img src="Gemini_Generated_Image_9ts3b89ts3b89ts3.png" alt="Illustration of dormancy patterns across Long Term Care, Primary Care, and Post Acute Care segments"></div>
+    </div>
+  </div>
+
+  <!-- SKU concentration chart -->
+  <div style="margin-top:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:1rem">SKU CONCENTRATION CURVE</div>
+    <div style="display:flex;gap:1.5rem;align-items:flex-end;margin-bottom:0.75rem">
+      <div>
+        <div style="font-family:var(--mono);font-size:36px;font-weight:500;color:var(--accent);line-height:1">91.2%</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:0.3rem">of purchases from top 10% of SKUs</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div>
+        <div style="font-family:var(--mono);font-size:36px;font-weight:500;color:var(--amber);line-height:1">46%</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:0.3rem">of purchased SKUs bought by fewer than 5 customers</div>
+      </div>
+    </div>
+    <!-- SVG curve -->
+    <svg viewBox="0 0 800 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-top:0.5rem">
+      <defs>
+        <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4ade80" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#4ade80" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      <!-- Grid lines -->
+      <line x1="80" y1="10" x2="780" y2="10" stroke="#1f2e21" stroke-width="1"/>
+      <line x1="80" y1="50" x2="780" y2="50" stroke="#1f2e21" stroke-width="1"/>
+      <line x1="80" y1="90" x2="780" y2="90" stroke="#1f2e21" stroke-width="1"/>
+      <line x1="80" y1="130" x2="780" y2="130" stroke="#1f2e21" stroke-width="1"/>
+      <!-- Y axis labels -->
+      <text x="70" y="14" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono" text-anchor="end">100%</text>
+      <text x="70" y="54" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono" text-anchor="end">75%</text>
+      <text x="70" y="94" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono" text-anchor="end">50%</text>
+      <text x="70" y="134" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono" text-anchor="end">25%</text>
+      <!-- X axis labels -->
+      <text x="80" y="150" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono">0%</text>
+      <text x="248" y="150" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono">25%</text>
+      <text x="416" y="150" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono">50%</text>
+      <text x="584" y="150" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono">75%</text>
+      <text x="752" y="150" fill="#5a7a5c" font-size="10" font-family="IBM Plex Mono">100%</text>
+      <!-- Curve fill -->
+      <path d="M80,130 C120,20 200,12 280,11 C400,10.5 500,10.8 780,10 L780,130 Z" fill="url(#curveFill)"/>
+      <!-- Curve line -->
+      <path d="M80,130 C120,20 200,12 280,11 C400,10.5 500,10.8 780,10" fill="none" stroke="#4ade80" stroke-width="2.5"/>
+      <!-- 10% marker -->
+      <line x1="150" y1="10" x2="150" y2="130" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="80" y1="17" x2="780" y2="17" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="150" cy="17" r="5" fill="#fbbf24"/>
+      <text x="156" y="32" fill="#fbbf24" font-size="10" font-family="IBM Plex Mono">Top 10% SKUs = 91.2% of purchases</text>
+      <!-- X axis -->
+      <line x1="80" y1="130" x2="780" y2="130" stroke="#2a3e2c" stroke-width="1"/>
+      <line x1="80" y1="10" x2="80" y2="130" stroke="#2a3e2c" stroke-width="1"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:0.5rem">
+      <span>% of SKUs (ranked by customer penetration)</span>
+      <span>Cumulative % of purchases</span>
+    </div>
+  </div>
+
+  <!-- Validation comparison -->
+  <div style="margin-top:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:1rem">LEAVE-ONE-OUT VALIDATION: MODEL VS BASELINE</div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">Recommendation model</div>
+        <div class="bar-track"><div class="bar-fill accent" style="width:30%"></div></div>
+        <div class="bar-val" style="color:var(--accent);font-weight:500">30%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Popularity baseline</div>
+        <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--text3)"></div></div>
+        <div class="bar-val">10%</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--text3);font-family:var(--mono);padding:0.75rem;background:var(--bg4);border-radius:4px;border-left:2px solid var(--border2);margin-top:1rem">3x better hit rate than recommending only the most popular items across the full catalog</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- DEMO -->
+<div class="section" id="demo">
+  <div class="section-label">05 <span>/ 05</span> Live Demo</div>
+  <h2>Recommendation output examples</h2>
+  <p style="font-size:14px;color:var(--text2);margin-bottom:0.5rem;max-width:620px">Six anonymized customer examples across three market segments. Select a customer to explore their recommendation profile and see how the two paths produce different output types.</p>
+  <p style="font-size:13px;color:var(--text3);font-family:var(--mono);margin-bottom:1.5rem">// all customer and product identifiers are anonymized. data is simulated for demonstration.</p>
+
+  <!-- Inline demo -->
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+
+    <!-- Demo tabs -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto" id="demo-tabs"></div>
+
+    <!-- Demo card -->
+    <div id="demo-card" style="padding:1.5rem"></div>
+
+    <!-- Legend -->
+    <div style="padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.75rem">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#534ab7;flex-shrink:0;margin-top:5px"></div>
+        <div style="font-size:13px;color:var(--text3)"><span style="color:var(--text2)">Neighbor-based (hybrid):</span> blends collaborative filtering with cluster-level popularity, adjusted by brand penalty score</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#0f6e56;flex-shrink:0;margin-top:5px"></div>
+        <div style="font-size:13px;color:var(--text3)"><span style="color:var(--text2)">Complement scorer:</span> identifies products frequently co-purchased with the customer's existing items, filtered by product sub-category to exclude substitutes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div style="max-width:900px;margin:0 auto;padding:3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+  <div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:0.5rem">PREVIOUS PROJECT</div>
+    <div style="font-family:var(--mono);font-size:16px;color:var(--text)">← Lackey Clinic Patient Churn Analysis</div>
+    <div style="font-size:13px;color:var(--text3);margin-top:0.25rem">Logistic Regression · KNN · Power BI · Healthcare</div>
+  </div>
+  <div style="display:flex;gap:1rem">
+    <a href="https://github.com/violet730323" style="font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">github →</a>
+    <a href="https://linkedin.com/in/yuxuan-zhao11" style="font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">linkedin →</a>
+  </div>
+</div>
+
+<script>
+// ── SEGMENT TOGGLE ──
+let segState = false;
+function toggleSegment() {
+  segState = !segState;
+  const a = document.getElementById('panel-active');
+  const d = document.getElementById('panel-dormant');
+  const ins = document.getElementById('seg-insight');
+  if (segState) {
+    a.style.opacity = '0.5'; a.style.background = 'var(--bg2)'; d.style.opacity = '1'; d.style.background = '#1a1206';
+    ins.textContent = '// 745K dormant accounts: registered for years, never ordered. A large, real, addressable opportunity the system is designed to serve.';
+  } else {
+    a.style.opacity = '1'; a.style.background = 'var(--accent-dimmer)'; d.style.opacity = '0.5'; d.style.background = 'var(--bg2)';
+    ins.textContent = '// 386K active customers are well understood. The 745K dormant accounts are where the untapped opportunity lies.';
+  }
+}
+
+// ── PATH TOGGLE ──
+function switchPath(p) {
+  document.getElementById('path1-content').classList.toggle('visible', p === 1);
+  document.getElementById('path2-content').classList.toggle('visible', p === 2);
+  const b1 = document.getElementById('btn-p1');
+  const b2 = document.getElementById('btn-p2');
+  b1.className = 'path-btn' + (p === 1 ? ' active-p1' : '');
+  b2.className = 'path-btn' + (p === 2 ? ' active-p2' : '');
+}
+
+// ── DEMO DATA ──
+const demoData = [
+  {
+    id: 'CUST-001', cluster: 1, segment: 'PRIMARY CARE', sub: 'PHYSICIAN OFFICE',
+    has_history: true,
+    hybrid: [
+      { id: '684759', name: 'TEST STRIP, BLD GLUC TRUEMETRIX PRO MULTI PT', score: 1.0 },
+      { id: '730562', name: 'LANCET, TRUEPLUS SM STR 30G (100/BX)', score: 0.8315 },
+      { id: '680001', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.5822 },
+      { id: '31904040', name: 'LANCET, TWIST TOP BLU 30G (100/BX 50BX/CS)', score: 0.4742 },
+      { id: '35372', name: 'PAD, ALCOHOL PREP STR LG (100/BX 10BX/CS)', score: 0.3504 }
+    ],
+    complement: [
+      { id: '883204', name: 'CERVICAL COLLAR, STIFFNECK SELECT ADJ', score: 1.0 },
+      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 0.9471 },
+      { id: '22194', name: 'CUP, MED GRAD W/LIP 1OZ (100/SL) MGM16', score: 0.9246 },
+      { id: '635094', name: "CANNULA, NASAL CONTRD LF ADLT 7' (50/CS)", score: 0.8159 },
+      { id: '684759', name: 'TEST STRIP, BLD GLUC TRUEMETRIX PRO MULTI PT', score: 0.6446 }
+    ]
+  },
+  {
+    id: 'CUST-002', cluster: 3, segment: 'PRIMARY CARE', sub: 'GOVERNMENT-PRIMARY CARE',
+    has_history: true,
+    hybrid: [
+      { id: '413107', name: "SPONGE, CVR 4\"X3\" STR 2'S (2/PK 25PK/TR)", score: 1.0 },
+      { id: '1005421', name: 'EYE WASH, OPHTHALMIC SOL 4OZ (48/CS)', score: 0.9120 },
+      { id: '232797', name: 'APPLICATOR, COTTONTIP STR 6\" (2/PK 100PK/BX)', score: 0.7844 },
+      { id: '884638', name: 'GLOVE, EXAM NTRL SM N/S 3.0 (100/BX 10BX/CS)', score: 0.6530 },
+      { id: '21969', name: 'PAD, ALCOHOL PREP STR MED (200/BX 20BX/CS)', score: 0.5210 }
+    ],
+    complement: [
+      { id: '575804', name: 'SWABSTICK, PVP STR (3/PK 25PK/BX 10BX/CS)', score: 1.0 },
+      { id: '884650', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (100/BX 10BX/CS)', score: 0.8832 },
+      { id: '681622', name: 'GLOVE, EXAM NTRL LG N/S 3.0 (250/BX 10BX/CS)', score: 0.7601 },
+      { id: '795942', name: 'GLOVE, SURG LTX 7.5 STR2 SMTH (50PR/BX 4BX/CS)', score: 0.6244 },
+      { id: '488505', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.5113 }
+    ]
+  },
+  {
+    id: 'CUST-003', cluster: 7, segment: 'LONG TERM CARE', sub: 'SKILLED NURSING FACILITY',
+    has_history: false,
+    hybrid: [
+      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 1.0 },
+      { id: '680001', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.8901 },
+      { id: '603597', name: 'CONTAINER, SHARPS RED 5QT HORIZ (10/BX 2BX/CS)', score: 0.7712 },
+      { id: '162181', name: 'SPONGE, GAUZE 8PLY N/S 4"X4" (200/PK 20PK/CS)', score: 0.6540 },
+      { id: '122432', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.5388 }
+    ],
+    complement: [
+      { id: '849944', name: 'TESTOSTERONE, SDV 200MG/ML 1ML PFIZER CIIIN', score: 1.0 },
+      { id: '632858', name: 'NEBULIZER, W/MOUTHPC LF SM VOL 7\'TU 6"FLEX (50/CS)', score: 0.9102 },
+      { id: '257344', name: 'SUPARTZ FX, SYR 10MG/ML 2.5ML', score: 0.8033 },
+      { id: '484524', name: 'SPONGE, GAUZE 8PLY STR 2\'S 4"X4" (2/PK 50PK/BX)', score: 0.7215 },
+      { id: '79929', name: 'IV ADMIN SET, BASIC 15DRP 79"LL (50/CS) BBRAUN', score: 0.6044 }
+    ]
+  },
+  {
+    id: 'CUST-004', cluster: 5, segment: 'POST ACUTE CARE', sub: 'HOME HEALTH',
+    has_history: true,
+    hybrid: [
+      { id: '602673', name: 'WIPE, GERMICIDE LG 6"X6.75" (160/BX 12BX/CS)', score: 1.0 },
+      { id: '778914', name: 'HYALGAN, SYR 20MG/2ML', score: 0.8760 },
+      { id: '169424', name: 'SPONGE, N/WOVN 4PLY N/S 2"X2" (200/PK)', score: 0.7430 },
+      { id: '633397', name: 'NEBULIZER, W/MOUTHPC LF ADLT 7TU (50/CS)', score: 0.6210 },
+      { id: '851228', name: 'NEEDLE, INSULIN PEN 32GX5/32" (100/BX 30BX/CS)', score: 0.4980 }
+    ],
+    complement: [
+      { id: '773266', name: 'BASIN, WASH GRAPHITE RECTANGLE 7QT (50/CS)', score: 1.0 },
+      { id: '790015', name: 'TISSUE, FACIAL FLAT BOX 2PLY WHT 8.37"X8.07"', score: 0.8814 },
+      { id: '14670', name: 'SOD CHL, IVSOL 0.9% PVC-DEHP FREE 100ML/150ML', score: 0.7623 },
+      { id: '775109', name: 'ELECTRODE, EMS F/12 LEAD EKG AMR ONLY (10/PK)', score: 0.6401 },
+      { id: '163270', name: 'SPONGE, GAUZE 12PLY N/S 4"X4" (200/PK 10PK/CS)', score: 0.5202 }
+    ]
+  },
+  {
+    id: 'CUST-005', cluster: 2, segment: 'PHYSICIAN OFFICE', sub: 'SPECIALTY CARE',
+    has_history: false,
+    hybrid: [
+      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 1.0 },
+      { id: '35372', name: 'PAD, ALCOHOL PREP STR LG (100/BX 10BX/CS)', score: 0.9234 },
+      { id: '122432', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.8010 },
+      { id: '680001', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.6780 },
+      { id: '488505', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.5540 }
+    ],
+    complement: [
+      { id: '603597', name: 'CONTAINER, SHARPS RED 5QT HORIZ (10/BX 2BX/CS)', score: 1.0 },
+      { id: '851228', name: 'NEEDLE, INSULIN PEN 32GX5/32" (100/BX 30BX/CS)', score: 0.8740 },
+      { id: '257344', name: 'SUPARTZ FX, SYR 10MG/ML 2.5ML', score: 0.7512 },
+      { id: '778914', name: 'HYALGAN, SYR 20MG/2ML', score: 0.6330 },
+      { id: '163270', name: 'SPONGE, GAUZE 12PLY N/S 4"X4" (200/PK 10PK/CS)', score: 0.5144 }
+    ]
+  },
+  {
+    id: 'CUST-006', cluster: 9, segment: 'LONG TERM CARE', sub: 'ASSISTED LIVING',
+    has_history: true,
+    hybrid: [
+      { id: '575804', name: 'SWABSTICK, PVP STR (3/PK 25PK/BX 10BX/CS)', score: 1.0 },
+      { id: '488505', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.8620 },
+      { id: '484524', name: "SPONGE, GAUZE 8PLY STR 2'S 4\"X4\" (2/PK 50PK/BX)", score: 0.7340 },
+      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 0.6050 },
+      { id: '132430', name: "BANDAGE, COHSV FLEXICON 4\"X5YD (18/BX 5BX/CS)", score: 0.4870 }
+    ],
+    complement: [
+      { id: '773266', name: 'BASIN, WASH GRAPHITE RECTANGLE 7QT (50/CS)', score: 1.0 },
+      { id: '790015', name: 'TISSUE, FACIAL FLAT BOX 2PLY WHT 8.37"X8.07"', score: 0.8910 },
+      { id: '122432', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.7720 },
+      { id: '681622', name: 'GLOVE, EXAM NTRL LG N/S 3.0 (250/BX 10BX/CS)', score: 0.6530 },
+      { id: '884650', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (100/BX 10BX/CS)', score: 0.5341 }
+    ]
+  }
+];
+
+let activeDemo = 0;
+
+function recRow(r, i, type) {
+  const col = type === 'hybrid' ? '#534ab7' : '#0f6e56';
+  const bgBar = type === 'hybrid' ? '#eeedfe' : '#e1f5ee';
+  return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #1f2e21">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5a7a5c;min-width:16px;text-align:right;padding-top:2px">${i+1}</span>
+    <div style="flex:1">
+      <div style="font-size:11px;color:#5a7a5c;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">ITEM-${r.id}</div>
+      <div style="font-size:12px;color:#e8f0e9;margin-bottom:5px;line-height:1.4">${r.name}</div>
+      <div style="height:3px;background:${bgBar};border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(r.score*100)}%;background:${col};border-radius:2px"></div>
+      </div>
+    </div>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#9ab09c;min-width:36px;text-align:right;padding-top:2px">${r.score.toFixed(2)}</span>
+  </div>`;
+}
+
+function renderDemo(idx) {
+  activeDemo = idx;
+  const d = demoData[idx];
+
+  // Tabs
+  document.getElementById('demo-tabs').innerHTML = demoData.map((c, i) =>
+    `<button onclick="renderDemo(${i})" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:12px 18px;border:none;border-bottom:2px solid ${i===idx?'#4ade80':'transparent'};background:transparent;color:${i===idx?'#4ade80':'#5a7a5c'};cursor:pointer;white-space:nowrap;transition:all 0.2s">${c.id}</button>`
+  ).join('');
+
+  const pathColor = d.has_history ? '#4ade80' : '#a78bfa';
+  const pathLabel = d.has_history ? 'Path 1 + Path 2' : 'Path 2 only (cold start)';
+  const pathBg = d.has_history ? '#0f2118' : '#2d1f5e';
+
+  document.getElementById('demo-card').innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid #1f2e21">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:500;color:#e8f0e9;margin-bottom:6px">${d.id}</div>
+        <div style="display:inline-block;font-size:11px;padding:4px 10px;border-radius:100px;background:#0f2118;color:#4ade80;border:1px solid #1a3d24;margin-bottom:4px">${d.segment}</div>
+        <div style="font-size:12px;color:#5a7a5c;margin-top:2px">${d.sub}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:12px;padding:4px 10px;border-radius:100px;border:0.5px solid #2a3e2c;color:#5a7a5c;background:#111612">Cluster ${d.cluster}</span>
+        <span style="font-size:12px;padding:4px 10px;border-radius:100px;border:0.5px solid #2a3e2c;color:#5a7a5c;background:#111612">${d.has_history ? 'Active customer' : 'Cold-start customer'}</span>
+        <span style="font-size:12px;padding:4px 10px;border-radius:100px;border:1px solid;border-color:${pathColor};color:${pathColor};background:${pathBg}">${pathLabel}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;background:#eeedfe;color:#3c3489;margin-bottom:0.75rem">
+          <span style="width:6px;height:6px;border-radius:50%;background:#534ab7;flex-shrink:0"></span>Neighbor-based (hybrid)
+        </div>
+        ${d.hybrid.map((r,i) => recRow(r, i, 'hybrid')).join('')}
+      </div>
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;background:#e1f5ee;color:#085041;margin-bottom:0.75rem">
+          <span style="width:6px;height:6px;border-radius:50%;background:#0f6e56;flex-shrink:0"></span>Complement scorer
+        </div>
+        ${d.complement.map((r,i) => recRow(r, i, 'complement')).join('')}
+      </div>
+    </div>`;
+}
+
+// Nav scroll spy
+const sections = ['problem','data','methods','findings','demo'];
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, {threshold: 0.3});
+sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+
+// Init
+renderDemo(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lackey Clinic — Patient Churn Analysis · Violet Zhao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e0b;
+  --bg2:#111612;
+  --bg3:#161c17;
+  --bg4:#1c231d;
+  --accent:#4ade80;
+  --accent2:#22c55e;
+  --accent-dim:#1a3d24;
+  --accent-dimmer:#0f2118;
+  --text:#e8f0e9;
+  --text2:#9ab09c;
+  --text3:#5a7a5c;
+  --border:#1f2e21;
+  --border2:#2a3e2c;
+  --red:#f87171;
+  --amber:#fbbf24;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7;min-height:100vh}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,14,11,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px}
+.nav-left{display:flex;align-items:center;gap:1.5rem}
+.nav-logo{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:0.05em}
+.nav-links{display:flex;gap:0}
+.nav-links a{font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;padding:0.4rem 0.75rem;border-radius:4px;transition:color 0.2s,background 0.2s;letter-spacing:0.03em}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);background:var(--accent-dimmer)}
+.nav-right{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+/* HERO */
+.hero{padding:120px 3rem 80px;max-width:900px;margin:0 auto}
+.hero-tag{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+.hero-tag::before{content:'';width:24px;height:1px;background:var(--accent)}
+h1{font-family:var(--mono);font-size:clamp(28px,4vw,48px);font-weight:500;line-height:1.15;color:var(--text);margin-bottom:1.5rem;letter-spacing:-0.02em}
+h1 span{color:var(--accent)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:2rem}
+.tag{font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--border2);border-radius:3px;color:var(--text3);letter-spacing:0.05em}
+.tag.green{border-color:var(--accent-dim);color:var(--accent);background:var(--accent-dimmer)}
+.hero-summary{font-size:16px;color:var(--text2);max-width:620px;line-height:1.8;border-left:2px solid var(--accent-dim);padding-left:1.25rem}
+
+/* SECTIONS */
+.section{padding:80px 3rem;max-width:900px;margin:0 auto}
+.section-label{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem}
+.section-label span{color:var(--text3)}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);margin-bottom:1.5rem;letter-spacing:-0.01em}
+h3{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--text);margin-bottom:0.75rem}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:0 3rem}
+
+/* PROBLEM GRID */
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:1.5rem}
+.problem-cell{background:var(--bg2);padding:1.5rem}
+.problem-cell .label{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.5rem}
+.problem-cell p{font-size:14px;color:var(--text2);line-height:1.7}
+.problem-cell.highlight{background:var(--accent-dimmer)}
+.problem-cell.highlight p{color:var(--text)}
+
+/* CHURN TOGGLE */
+.churn-toggle-section{margin-top:2rem}
+.toggle-wrapper{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.toggle-label{font-family:var(--mono);font-size:13px;color:var(--text2)}
+.toggle-label.active{color:var(--accent)}
+.toggle-track{width:80px;height:36px;background:var(--bg4);border:1px solid var(--border2);border-radius:18px;cursor:pointer;position:relative;transition:background 0.3s;flex-shrink:0}
+.toggle-track.on{background:var(--accent-dim);border-color:var(--accent)}
+.toggle-knob{position:absolute;top:4px;left:4px;width:26px;height:26px;background:var(--text3);border-radius:50%;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),background 0.3s}
+.toggle-track.on .toggle-knob{transform:translateX(44px);background:var(--accent)}
+
+.churn-display{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.churn-panel{background:var(--bg2);padding:2rem;transition:opacity 0.4s,transform 0.4s}
+.churn-panel.dimmed{opacity:0.3}
+.churn-number{font-family:var(--mono);font-size:48px;font-weight:500;line-height:1;margin-bottom:0.5rem}
+.churn-number.base{color:var(--amber)}
+.churn-number.custom{color:var(--accent)}
+.churn-type{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem}
+.churn-type.base{color:var(--amber)}
+.churn-type.custom{color:var(--accent)}
+.churn-def{font-size:13px;color:var(--text2);line-height:1.6;padding:0.75rem;background:var(--bg3);border-radius:4px;border-left:2px solid var(--border2);margin-bottom:1rem}
+.churn-badge{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px}
+.churn-badge.bad{background:#3d1515;color:var(--red);border:1px solid #5a2020}
+.churn-badge.watch{background:#2d2510;color:var(--amber);border:1px solid #4a3a18}
+
+/* MODEL SELECTOR */
+.model-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:2rem}
+.model-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1rem;cursor:pointer;transition:all 0.2s;position:relative}
+.model-card:hover{border-color:var(--border2);background:var(--bg3)}
+.model-card.selected{border-color:var(--accent);background:var(--accent-dimmer)}
+.model-card.selected::before{content:'✓';position:absolute;top:8px;right:10px;font-size:12px;color:var(--accent);font-family:var(--mono)}
+.model-card .mc-type{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem}
+.model-card .mc-name{font-family:var(--mono);font-size:13px;color:var(--text);font-weight:500;line-height:1.3}
+.model-card.selected .mc-name{color:var(--accent)}
+
+.metrics-display{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:2rem}
+.metrics-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.5rem}
+.metric-cell{background:var(--bg3);padding:1.25rem;text-align:center}
+.metric-val{font-family:var(--mono);font-size:36px;font-weight:500;line-height:1;transition:all 0.4s cubic-bezier(0.34,1.2,0.64,1)}
+.metric-val.accent{color:var(--accent)}
+.metric-val.amber{color:var(--amber)}
+.metric-val.red{color:var(--red)}
+.metric-lbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-top:0.4rem}
+.model-insight{font-size:13px;color:var(--text2);line-height:1.7;padding:1rem;background:var(--bg4);border-radius:4px;border-left:2px solid var(--accent-dim)}
+.model-insight strong{color:var(--text);font-weight:500}
+
+/* BAR CHART */
+.bar-chart{margin-top:1.5rem}
+.bar-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem}
+.bar-label{font-family:var(--mono);font-size:11px;color:var(--text2);width:120px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.6s cubic-bezier(0.34,1.2,0.64,1)}
+.bar-fill.accent{background:var(--accent)}
+.bar-fill.amber{background:var(--amber)}
+.bar-fill.red{background:var(--red)}
+.bar-val{font-family:var(--mono);font-size:11px;color:var(--text3);width:45px;flex-shrink:0}
+
+/* FINDINGS */
+.findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.5rem}
+.finding-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem}
+.finding-num{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:0.75rem}
+.finding-title{font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:0.75rem;font-weight:500}
+.finding-body{font-size:13px;color:var(--text2);line-height:1.7}
+.finding-stat{font-family:var(--mono);font-size:22px;color:var(--text);margin:0.75rem 0 0.25rem}
+
+/* RECOMMENDATION CARDS */
+.rec-stack{display:flex;flex-direction:column;gap:8px;margin-top:1.5rem}
+.rec-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color 0.2s}
+.rec-card:hover{border-color:var(--border2)}
+.rec-card.open{border-color:var(--accent)}
+.rec-header{display:flex;align-items:center;gap:1rem;padding:1.25rem 1.5rem}
+.rec-icon{width:36px;height:36px;border-radius:6px;background:var(--accent-dimmer);border:1px solid var(--accent-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.rec-title-group{flex:1}
+.rec-num{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em}
+.rec-title{font-family:var(--mono);font-size:14px;color:var(--text);font-weight:500}
+.rec-card.open .rec-title{color:var(--accent)}
+.rec-arrow{font-family:var(--mono);font-size:16px;color:var(--text3);transition:transform 0.3s}
+.rec-card.open .rec-arrow{transform:rotate(180deg);color:var(--accent)}
+.rec-body{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1)}
+.rec-card.open .rec-body{max-height:300px}
+.rec-inner{padding:0 1.5rem 1.5rem;padding-top:0}
+.rec-divider{height:1px;background:var(--border);margin-bottom:1.25rem}
+.rec-actions{display:flex;flex-direction:column;gap:0.5rem}
+.rec-action{display:flex;align-items:flex-start;gap:0.75rem;font-size:13px;color:var(--text2);line-height:1.5}
+.rec-action::before{content:'→';font-family:var(--mono);color:var(--accent);flex-shrink:0;margin-top:1px}
+.rec-target{display:inline-block;margin-top:0.75rem;font-family:var(--mono);font-size:11px;padding:3px 8px;background:var(--accent-dimmer);color:var(--accent);border:1px solid var(--accent-dim);border-radius:3px}
+
+/* PIPELINE */
+.pipeline{display:flex;align-items:stretch;gap:0;margin-top:1.5rem;background:var(--border);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.pipe-step{flex:1;background:var(--bg2);padding:1.25rem 1rem;text-align:center;position:relative}
+.pipe-step:not(:last-child)::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:14px;color:var(--text3);z-index:1;background:var(--border);width:20px;display:flex;align-items:center;justify-content:center}
+.pipe-num{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;margin-bottom:0.4rem}
+.pipe-name{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500;margin-bottom:0.3rem}
+.pipe-desc{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:2rem 3rem;max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+footer .f-left{font-family:var(--mono);font-size:12px;color:var(--text3)}
+footer .f-right{display:flex;gap:1rem}
+footer a{font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;transition:color 0.2s}
+footer a:hover{color:var(--accent)}
+
+@media(max-width:680px){
+  .hero,.section{padding-left:1.5rem;padding-right:1.5rem}
+  .problem-grid,.churn-display,.findings-grid,.model-grid{grid-template-columns:1fr}
+  .metrics-row{grid-template-columns:1fr}
+  .pipeline{flex-direction:column}
+  .pipe-step:not(:last-child)::after{display:none}
+  nav{padding:0 1rem}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <span class="nav-logo">violet.zhao</span>
+    <div class="nav-links">
+      <a href="#problem" class="nav-link">problem</a>
+      <a href="#approach" class="nav-link">approach</a>
+      <a href="#models" class="nav-link">models</a>
+      <a href="#findings" class="nav-link">findings</a>
+      <a href="#recommendations" class="nav-link">recommendations</a>
+    </div>
+  </div>
+  <div class="nav-right">case_study_01</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Healthcare Analytics · William &amp; Mary MSBA</div>
+  <h1>Patient Churn<br>Prediction at<br><span>Lackey Clinic</span></h1>
+  <div class="hero-meta">
+    <span class="tag green">Logistic Regression</span>
+    <span class="tag green">KNN</span>
+    <span class="tag">Python · R</span>
+    <span class="tag">Power BI</span>
+    <span class="tag">Healthcare Analytics</span>
+    <span class="tag">Churn Modeling</span>
+  </div>
+  <p class="hero-summary">Built an interpretable predictive model to identify patients at high risk of disengaging from care — before they officially leave. Delivered actionable retention strategies to clinic leadership.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<div class="section" id="problem">
+  <div class="section-label">01 <span>/ 05</span> Problem Statement</div>
+  <h2>Why patients leave — and when it's too late to act</h2>
+  <p style="color:var(--text2);margin-bottom:1.5rem;font-size:14px;max-width:640px">Lackey Clinic serves patients at 139–300% of the federal poverty line. Losing patients doesn't just affect care continuity — it directly impacts the clinic's ability to secure funding and sustain operations.</p>
+
+  <div class="problem-grid">
+    <div class="problem-cell highlight">
+      <div class="label">Core challenge</div>
+      <p>The clinic had no way to identify at-risk patients <em>before</em> they stopped coming. Retention efforts were reactive, not predictive.</p>
+    </div>
+    <div class="problem-cell">
+      <div class="label">What we set out to build</div>
+      <p>An interpretable model that flags high-risk patients early — giving staff time to intervene before the patient is already gone.</p>
+    </div>
+    <div class="problem-cell">
+      <div class="label">Why interpretability matters</div>
+      <p>Clinic leadership has no technical background. A 92% accurate black box is useless. We needed a model they could trust and act on.</p>
+    </div>
+    <div class="problem-cell">
+      <div class="label">Audience</div>
+      <p>Healthcare administrators and care coordinators — decision-makers who needed clear, actionable findings, not statistical outputs.</p>
+    </div>
+  </div>
+
+  <!-- CHURN TOGGLE -->
+  <div class="churn-toggle-section" style="margin-top:2.5rem">
+    <h3>Two definitions of churn — toggle to explore</h3>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:1.25rem;font-family:var(--mono)">// not all churn is equal. understanding the difference drives the strategy.</p>
+    <div class="toggle-wrapper">
+      <span class="toggle-label" id="lbl-base">Base Churn</span>
+      <div class="toggle-track" id="churnToggle" onclick="toggleChurn()">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="toggle-label" id="lbl-custom">Custom Churn</span>
+    </div>
+
+    <div class="churn-display">
+      <div class="churn-panel" id="panel-base">
+        <div class="churn-number base">71.3%</div>
+        <div class="churn-type base">Base Churn</div>
+        <div class="churn-def">Patient has no recorded encounters within the past six months (182 days). Includes all reasons for leaving.</div>
+        <span class="churn-badge watch">Broad definition — includes "good" churn</span>
+      </div>
+      <div class="churn-panel dimmed" id="panel-custom">
+        <div class="churn-number custom">13.2%</div>
+        <div class="churn-type custom">Custom Churn</div>
+        <div class="churn-def">Excludes "good churn" — patients who left due to insurance changes or relocation. Isolates patients who abruptly ceased contact without cause.</div>
+        <span class="churn-badge bad">The patients the clinic must actually retain</span>
+      </div>
+    </div>
+    <p id="churn-insight" style="margin-top:1rem;font-size:13px;color:var(--text3);font-family:var(--mono);padding:0.75rem;background:var(--bg2);border-radius:4px;border-left:2px solid var(--border2);transition:all 0.3s">
+      // Base churn (71.3%) is the headline number — but most of it is unavoidable. The real problem is the 13.2% who silently drift away.
+    </p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- APPROACH -->
+<div class="section" id="approach">
+  <div class="section-label">02 <span>/ 05</span> Data &amp; Approach</div>
+  <h2>End-to-end pipeline from messy data to actionable output</h2>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">01</div>
+      <div class="pipe-name">Data</div>
+      <div class="pipe-desc">6 tables integrated: encounters, enrollment, mental health, geography, financials, telehealth</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">02</div>
+      <div class="pipe-name">Features</div>
+      <div class="pipe-desc">Engineered behavioral, clinical &amp; demographic attributes — visit gaps, no-show rate, PHQ-9, distance</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">03</div>
+      <div class="pipe-name">Model</div>
+      <div class="pipe-desc">Compared 4 models across 2 churn definitions. Prioritized interpretability for clinical deployment</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">04</div>
+      <div class="pipe-name">Insights</div>
+      <div class="pipe-desc">Actionable, transparent findings translated into Power BI dashboard for leadership</div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.08em;margin-bottom:0.75rem">KEY FEATURES ENGINEERED</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem">
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">No-show rate</span> (past 12 months)</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">Visit gap length</span> &amp; cancellation count</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">PHQ-9 score</span> (average, depression proxy)</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">Distance to clinic</span> (geographic access)</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">Telehealth usage</span> flag</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">Chronic condition</span> &amp; employment status</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.08em;margin-bottom:0.75rem">DATA CHALLENGES</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem">
+        <div style="font-size:13px;color:var(--text2)">→ Missing values across multiple tables</div>
+        <div style="font-size:13px;color:var(--text2)">→ Class imbalance in churn labels</div>
+        <div style="font-size:13px;color:var(--text2)">→ Upsample &amp; downsample strategies tested</div>
+        <div style="font-size:13px;color:var(--text2)">→ Threshold tuning for recall/precision balance</div>
+        <div style="font-size:13px;color:var(--text2)">→ Non-patient records removed pre-modeling</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- MODELS -->
+<div class="section" id="models">
+  <div class="section-label">03 <span>/ 05</span> Model Results</div>
+  <h2>Select a model to explore performance</h2>
+  <p style="font-size:13px;color:var(--text3);font-family:var(--mono);margin-bottom:1.5rem">// click any card to see accuracy, sensitivity, and specificity</p>
+
+  <div class="model-grid">
+    <div class="model-card selected" onclick="selectModel(0)" id="mc0">
+      <div class="mc-type">Custom Churn</div>
+      <div class="mc-name">Logistic Regression</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:0.4rem">Upsample + Thr 0.54</div>
+    </div>
+    <div class="model-card" onclick="selectModel(1)" id="mc1">
+      <div class="mc-type">Custom Churn</div>
+      <div class="mc-name">K-Nearest Neighbors</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:0.4rem">KNN</div>
+    </div>
+    <div class="model-card" onclick="selectModel(2)" id="mc2">
+      <div class="mc-type">Base Churn</div>
+      <div class="mc-name">Logistic Regression</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:0.4rem">Downsample + Thr 0.88</div>
+    </div>
+    <div class="model-card" onclick="selectModel(3)" id="mc3">
+      <div class="mc-type">Base Churn</div>
+      <div class="mc-name">K-Nearest Neighbors</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:0.4rem">KNN</div>
+    </div>
+  </div>
+
+  <div class="metrics-display">
+    <div class="metrics-row">
+      <div class="metric-cell">
+        <div class="metric-val accent" id="m-acc">75.6%</div>
+        <div class="metric-lbl">Accuracy</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-val amber" id="m-sen">37.4%</div>
+        <div class="metric-lbl">Sensitivity</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-val" id="m-spe" style="color:var(--text)">81.4%</div>
+        <div class="metric-lbl">Specificity</div>
+      </div>
+    </div>
+
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">Accuracy</div>
+        <div class="bar-track"><div class="bar-fill accent" id="b-acc" style="width:75.6%"></div></div>
+        <div class="bar-val" id="bv-acc">75.6%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Sensitivity</div>
+        <div class="bar-track"><div class="bar-fill amber" id="b-sen" style="width:37.4%"></div></div>
+        <div class="bar-val" id="bv-sen">37.4%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Specificity</div>
+        <div class="bar-track"><div class="bar-fill" id="b-spe" style="width:81.4%;background:var(--text2)"></div></div>
+        <div class="bar-val" id="bv-spe">81.4%</div>
+      </div>
+    </div>
+
+    <div class="model-insight" id="model-insight" style="margin-top:1.25rem">
+      <strong>Why we chose this model:</strong> The Custom Churn Logistic Regression (upsampled, threshold 0.54) was selected as the control model for deployment. It balances interpretability with reasonable sensitivity — critical for a clinic audience who needs to understand <em>why</em> a patient is flagged, not just <em>that</em> they are.
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FINDINGS -->
+<div class="section" id="findings">
+  <div class="section-label">04 <span>/ 05</span> Key Findings</div>
+  <h2>Two findings that reframed the retention strategy</h2>
+
+  <div class="findings-grid">
+    <div class="finding-card">
+      <div class="finding-num">FINDING_01</div>
+      <div class="finding-title">No-show rate dramatically increases churn risk</div>
+      <div class="finding-stat" style="color:var(--accent)">↑ churn risk</div>
+      <div class="finding-body">Patients with a high number of missed appointments are significantly more likely to disengage from Lackey Clinic. No-show rate was the strongest behavioral predictor in the model — more predictive than demographics or distance.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">
+        Intervention: automated SMS re-engagement trigger after 2nd no-show
+      </div>
+    </div>
+    <div class="finding-card">
+      <div class="finding-num">FINDING_02</div>
+      <div class="finding-title">The Distance Paradox — proximity ≠ consistency</div>
+      <div class="finding-stat" style="color:var(--amber)">counterintuitive</div>
+      <div class="finding-body">Surprisingly, distance is not a significant predictor of churn. Distant patients may actually be <em>less</em> likely to churn — because they have fewer alternatives. The real risk lies with chronically ill and unemployed patients who silently drift away.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">
+        Implication: don't optimize for proximity. Optimize for vulnerability.
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem;background:var(--bg2);border:1px solid var(--accent-dim);border-radius:8px;padding:1.5rem">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.08em;margin-bottom:0.5rem">HIGHEST RETENTION COHORT</div>
+    <p style="font-size:14px;color:var(--text2)">The healthy and employed. <span style="color:var(--text)">The highest-risk cohort: chronically ill and unemployed patients — who silently drift away without triggering obvious warning signals.</span> These are the patients the model was designed to surface.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RECOMMENDATIONS -->
+<div class="section" id="recommendations">
+  <div class="section-label">05 <span>/ 05</span> Recommendations</div>
+  <h2>Three intervention strategies</h2>
+  <p style="font-size:13px;color:var(--text3);font-family:var(--mono);margin-bottom:0.5rem">// click each card to expand action details</p>
+
+  <div class="rec-stack">
+    <div class="rec-card open" id="rec0" onclick="toggleRec(0)">
+      <div class="rec-header">
+        <div class="rec-icon">📞</div>
+        <div class="rec-title-group">
+          <div class="rec-num">REC_01</div>
+          <div class="rec-title">Personalized Outreach</div>
+        </div>
+        <div class="rec-arrow">∨</div>
+      </div>
+      <div class="rec-body">
+        <div class="rec-inner">
+          <div class="rec-divider"></div>
+          <div class="rec-actions">
+            <div class="rec-action">Implement automated SMS re-engagement trigger immediately following a patient's second no-show</div>
+            <div class="rec-action">Personalized phone call or rescheduling support to reduce future disengagement</div>
+            <div class="rec-action">Flag high-risk patients in clinic management system for proactive coordinator outreach</div>
+          </div>
+          <span class="rec-target">Target: High no-show frequency patients</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rec-card" id="rec1" onclick="toggleRec(1)">
+      <div class="rec-header">
+        <div class="rec-icon">🏥</div>
+        <div class="rec-title-group">
+          <div class="rec-num">REC_02</div>
+          <div class="rec-title">Target Chronically Ill &amp; Unemployed Patients</div>
+        </div>
+        <div class="rec-arrow">∨</div>
+      </div>
+      <div class="rec-body">
+        <div class="rec-inner">
+          <div class="rec-divider"></div>
+          <div class="rec-actions">
+            <div class="rec-action">Expand telehealth services to overcome transportation, time, and mobility barriers</div>
+            <div class="rec-action">Provide dedicated care coordinators for patients with chronic conditions</div>
+            <div class="rec-action">Connect unemployed patients with social service support and insurance navigation assistance</div>
+          </div>
+          <span class="rec-target">Target: Chronic illness + unemployment cohort</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rec-card" id="rec2" onclick="toggleRec(2)">
+      <div class="rec-header">
+        <div class="rec-icon">📍</div>
+        <div class="rec-title-group">
+          <div class="rec-num">REC_03</div>
+          <div class="rec-title">Improve Convenience for Nearby Patients</div>
+        </div>
+        <div class="rec-arrow">∨</div>
+      </div>
+      <div class="rec-body">
+        <div class="rec-inner">
+          <div class="rec-divider"></div>
+          <div class="rec-actions">
+            <div class="rec-action">Reduce wait times — nearby patients churn when friction outweighs convenience of proximity</div>
+            <div class="rec-action">Expand telehealth options even for local patients who prefer digital access</div>
+            <div class="rec-action">Introduce flexible scheduling windows to reduce scheduling conflicts for working patients</div>
+          </div>
+          <span class="rec-target">Target: Geographically proximate but low-engagement patients</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem;display:flex;align-items:flex-start;gap:1rem">
+    <div style="font-family:var(--mono);font-size:32px;color:var(--accent);line-height:1">↓</div>
+    <div>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--accent);margin-bottom:0.4rem">Estimated impact</div>
+      <p style="font-size:14px;color:var(--text2)">Targeted proactive follow-up using model predictions — particularly the 48-hour re-engagement window after a missed appointment — is estimated to reduce patient churn by <span style="color:var(--text);font-weight:500">up to 45%</span> in the highest-risk cohort.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div style="max-width:900px;margin:0 auto;padding:3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap">
+  <div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.1em;margin-bottom:0.5rem">NEXT PROJECT</div>
+    <div style="font-family:var(--mono);font-size:16px;color:var(--text)">McKesson Product Recommendation System →</div>
+    <div style="font-size:13px;color:var(--text3);margin-top:0.25rem">115M rows · Collaborative Filtering · Cold-start strategy</div>
+  </div>
+  <div style="display:flex;gap:1rem;margin-top:1rem">
+    <a href="https://github.com/violet730323" style="font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">github →</a>
+    <a href="https://linkedin.com/in/yuxuan-zhao11" style="font-family:var(--mono);font-size:12px;color:var(--text3);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">linkedin →</a>
+  </div>
+</div>
+
+<script>
+const models = [
+  {acc:'75.6%',sen:'37.4%',spe:'81.4%',accN:75.6,senN:37.4,speN:81.4,
+   insight:'<strong>Why we chose this model:</strong> Selected as the control model. The upsampled logistic regression with threshold 0.54 balances interpretability with reasonable sensitivity — critical for a non-technical clinic audience who needs to understand <em>why</em> a patient is flagged, not just <em>that</em> they are.'},
+  {acc:'85.8%',sen:'1.2%',spe:'98.6%',accN:85.8,senN:1.2,speN:98.6,
+   insight:'<strong>Trade-off:</strong> KNN achieves high accuracy and near-perfect specificity, but sensitivity collapses to 1.2% — it almost never flags a churner. A model that never raises the alarm is useless for intervention. <em>High accuracy, zero utility.</em>'},
+  {acc:'86.8%',sen:'0.6%',spe:'99.9%',accN:86.8,senN:0.6,speN:99.9,
+   insight:'<strong>Trade-off:</strong> Best accuracy of all four models, but sensitivity is 0.6% — effectively zero. With base churn at 71.3%, this model predicts "no churn" for almost every patient and is still 86% accurate. A trivial classifier.'},
+  {acc:'72.7%',sen:'86.8%',spe:'37.4%',accN:72.7,senN:86.8,speN:37.4,
+   insight:'<strong>Trade-off:</strong> KNN on base churn achieves high sensitivity (86.8%) but at the cost of specificity (37.4%) — it flags too many false positives. Useful for broad screening but too noisy for targeted clinical intervention.'}
+];
+
+let selectedModel = 0;
+
+function selectModel(i) {
+  selectedModel = i;
+  document.querySelectorAll('.model-card').forEach((c,j) => {
+    c.classList.toggle('selected', j === i);
+  });
+  const m = models[i];
+  document.getElementById('m-acc').textContent = m.acc;
+  document.getElementById('m-sen').textContent = m.sen;
+  document.getElementById('m-spe').textContent = m.spe;
+  document.getElementById('b-acc').style.width = m.accN + '%';
+  document.getElementById('b-sen').style.width = m.senN + '%';
+  document.getElementById('b-spe').style.width = m.speN + '%';
+  document.getElementById('bv-acc').textContent = m.acc;
+  document.getElementById('bv-sen').textContent = m.sen;
+  document.getElementById('bv-spe').textContent = m.spe;
+  document.getElementById('model-insight').innerHTML = m.insight;
+}
+
+let churnState = false;
+function toggleChurn() {
+  churnState = !churnState;
+  const track = document.getElementById('churnToggle');
+  track.classList.toggle('on', churnState);
+  document.getElementById('panel-base').classList.toggle('dimmed', churnState);
+  document.getElementById('panel-custom').classList.toggle('dimmed', !churnState);
+  document.getElementById('lbl-base').classList.toggle('active', !churnState);
+  document.getElementById('lbl-custom').classList.toggle('active', churnState);
+  const insight = document.getElementById('churn-insight');
+  if (churnState) {
+    insight.textContent = '// Custom churn (13.2%) is the actionable target — patients who are still enrolled but silently drifting. This is who the model is built to find.';
+  } else {
+    insight.textContent = '// Base churn (71.3%) is the headline number — but most of it is unavoidable. The real problem is the 13.2% who silently drift away.';
+  }
+}
+
+function toggleRec(i) {
+  const card = document.getElementById('rec' + i);
+  card.classList.toggle('open');
+}
+
+// Active nav on scroll
+const sections = ['problem','approach','models','findings','recommendations'];
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, {threshold: 0.3});
+
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) observer.observe(el);
+});
+</script>
+</body>
+</html>
