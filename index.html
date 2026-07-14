@@ -592,37 +592,41 @@ footer span { font-family: var(--mono); font-size: 11px; color: var(--silver3); 
 
 <!-- ═══ SECTION 2: PROJECTS placeholder ═══ -->
 <section id="projects" style="padding: 100px 2.5rem; max-width:1100px; margin:0 auto;">
-  <div class="section-label">02 <span style="color:var(--silver3)">/</span> projects</div>
-  <h2 class="section-title">Featured Case Studies</h2>
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-    <a href="lackey_clinic.html" style="text-decoration:none;" target="_blank">
-      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.75rem; transition:all 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
-        <div style="font-family:var(--mono); font-size:10px; color:var(--silver3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">case_study_01 · healthcare analytics</div>
-        <div style="font-family:var(--display); font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px;">Lackey Clinic — Patient Churn Prediction</div>
-        <div style="font-size:13px; color:var(--text2); margin-bottom:14px;">Built an interpretable churn model for a nonprofit healthcare clinic serving low-income patients. Prioritized model trust over raw accuracy.</div>
-        <div style="display:flex; flex-wrap:wrap; gap:5px;">
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Logistic Regression</span>
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">KNN</span>
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Power BI</span>
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Python · R</span>
-        </div>
-        <div style="margin-top:14px; font-family:var(--mono); font-size:11px; color:var(--accent2);">View Case Study →</div>
-      </div>
-    </a>
-    <a href="mckesson_recommendation.html" style="text-decoration:none;" target="_blank">
-      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.75rem; transition:all 0.2s; cursor:pointer;" onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
-        <div style="font-family:var(--mono); font-size:10px; color:var(--silver3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">case_study_02 · supply chain analytics</div>
-        <div style="font-family:var(--display); font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px;">McKesson — Product Recommendation System</div>
-        <div style="font-size:13px; color:var(--text2); margin-bottom:14px;">115M+ transactions · 1.13M customer accounts · cold-start strategy for 745K dormant customers.</div>
-        <div style="display:flex; flex-wrap:wrap; gap:5px;">
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Collaborative Filtering</span>
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Python · DuckDB</span>
-          <span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Clustering</span>
-        </div>
-        <div style="margin-top:14px; font-family:var(--mono); font-size:11px; color:var(--accent2);">View Case Study →</div>
-      </div>
-    </a>
-  </div>
+<div class="section-label">02 <span style="color:var(--silver3)">/</span> projects</div>
+<h2 class="section-title">Featured Case Studies</h2>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:stretch;">
+
+<a href="lackey_clinic.html" style="text-decoration:none; display:flex;" target="_blank">
+<div style="background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.75rem; transition:all 0.2s; cursor:pointer; display:flex; flex-direction:column; width:100%;" onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+<div style="font-family:var(--mono); font-size:10px; color:var(--silver3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">case_study_01 · healthcare analytics</div>
+<div style="font-family:var(--display); font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px;">Lackey Clinic — Patient Churn Prediction</div>
+<div style="font-size:13px; color:var(--text2); margin-bottom:14px;">Built an interpretable churn model for a nonprofit healthcare clinic serving low-income patients. Prioritized model trust over raw accuracy.</div>
+<div style="display:flex; flex-wrap:wrap; gap:5px;">
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Logistic Regression</span>
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">KNN</span>
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Power BI</span>
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Python · R</span>
+</div>
+<div style="margin-top:auto; padding-top:14px; font-family:var(--mono); font-size:11px; color:var(--accent2);">View Case Study →</div>
+</div>
+</a>
+
+<a href="mckesson_recommendation.html" style="text-decoration:none; display:flex;" target="_blank">
+<div style="background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:1.75rem; transition:all 0.2s; cursor:pointer; display:flex; flex-direction:column; width:100%;" onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+<div style="font-family:var(--mono); font-size:10px; color:var(--silver3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">case_study_02 · supply chain analytics</div>
+<div style="font-family:var(--display); font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px;">McKesson — Product Recommendation System</div>
+<div style="font-size:13px; color:var(--text2); margin-bottom:14px;">115M+ transactions · 1.13M customer accounts · cold-start strategy for 745K dormant customers.</div>
+<div style="display:flex; flex-wrap:wrap; gap:5px;">
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Collaborative Filtering</span>
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Python · DuckDB</span>
+<span style="font-family:var(--mono); font-size:9px; padding:2px 7px; border-radius:3px; background:rgba(124,111,255,0.1); color:var(--accent2); border:1px solid rgba(124,111,255,0.2);">Clustering</span>
+</div>
+<div style="margin-top:auto; padding-top:14px; font-family:var(--mono); font-size:11px; color:var(--accent2);">View Case Study →</div>
+</div>
+</a>
+
+</div>
 </section>
 
 <div class="section-divider"></div>
