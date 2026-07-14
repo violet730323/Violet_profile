@@ -366,7 +366,15 @@ h2.section-title {
 }
 
 /* ─── CONTACT / SECTION 5 ─── */
+#contact { position: relative; overflow: hidden; }
+.contact-bg-flower {
+  position: absolute; top: 50%; right: -40px; transform: translateY(-50%);
+  width: 380px; max-width: 42%; height: auto;
+  opacity: 0.35; filter: invert(1); mix-blend-mode: screen;
+  pointer-events: none; z-index: 0; user-select: none;
+}
 .contact-wrap {
+  position: relative; z-index: 1;
   display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: start; margin-top: 2rem;
 }
 .contact-left {}
@@ -836,6 +844,7 @@ footer span { font-family: var(--mono); font-size: 11px; color: var(--silver3); 
 
 <!-- ═══ SECTION 5: CONTACT ═══ -->
 <section id="contact" class="section">
+  <img class="contact-bg-flower" src="violet-flower.png" alt="" aria-hidden="true">
   <div class="section-label">05 <span style="color:var(--silver3)">/</span> contact</div>
   <h2 class="section-title">Let's Talk</h2>
 
