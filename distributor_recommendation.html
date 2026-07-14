@@ -306,7 +306,7 @@ footer a:hover{color:var(--accent)}
       <div style="display:flex;flex-direction:column;gap:0.5rem">
         <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">items_bought</span>: dict of item IDs and quantities purchased</div>
         <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">has_purchase_history</span>: binary flag, routes Path 1 vs Path 2</div>
-        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">pct_mck_brand</span>: private-label share per customer</div>
+        <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">pct_private_label</span>: private-label share per customer</div>
         <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">recency_days</span>: days since last order</div>
         <div style="font-size:13px;color:var(--text2)">→ <span style="color:var(--text)">account_span_days</span>: customer tenure</div>
       </div>
@@ -512,7 +512,7 @@ footer a:hover{color:var(--accent)}
       <div class="finding-stat" style="color:var(--amber)">745K accounts</div>
       <div class="finding-body">Of 1.13 million registered accounts, 745,000 — a 66% dormancy rate — had placed no orders in two years. Tenure data confirmed these were long-standing accounts, not new sign-ups, that never converted.</div>
       <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">These accounts have already cleared the acquisition barrier — activation through targeted recommendations is a lower-cost path to revenue than new customer outreach.</div>
-      <div class="finding-image"><img src="mckesson_find1.png" alt="Illustration of 1.13 million registered accounts split into a 66% dormant invisible majority"></div>
+      <div class="finding-image"><img src="finding1.png" alt="Illustration of 1.13 million registered accounts split into a 66% dormant invisible majority"></div>
     </div>
 
     <div class="finding-card">
@@ -521,7 +521,7 @@ footer a:hover{color:var(--accent)}
       <div class="finding-stat" style="color:var(--accent)">91.2% of volume</div>
       <div class="finding-body">The top 10% of SKUs accounted for 91.2% of all purchases; 46% of purchased SKUs were bought by fewer than five customers. Most accounts repeatedly ordered the same core items, with little exposure to the broader catalog.</div>
       <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">This reflects a lack of visibility, not a lack of need — customers buy what they're shown. The recommendation system surfaces relevant products outside each customer's existing purchase history.</div>
-      <div class="finding-image"><img src="mckesson_find2.png" alt="Illustration of the top 10% of SKUs driving 91.2% of purchase volume"></div>
+      <div class="finding-image"><img src="finding2.png" alt="Illustration of the top 10% of SKUs driving 91.2% of purchase volume"></div>
     </div>
 
     <div class="finding-card">
@@ -529,7 +529,7 @@ footer a:hover{color:var(--accent)}
       <div class="finding-title">Private label opportunity</div>
       <div class="finding-stat" style="color:var(--accent)">31% mean share</div>
       <div class="finding-body">Across 386,103 active customers, mean private-label share was ~31% — nearly 70% of purchases flowed to third-party suppliers. Since private-label carries higher margins, this gap is a measurable, recoverable profit opportunity.</div>
-      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">High-spending accounts with low private-label share are the highest-priority targets — their volume is already proven, so a brand-mix shift has outsized impact. A brand uplift layer redirects eligible purchases toward McKesson private-label alternatives.</div>
+      <div style="margin-top:1rem;padding:0.75rem;background:var(--bg3);border-radius:4px;font-size:12px;color:var(--text3);font-family:var(--mono)">High-spending accounts with low private-label share are the highest-priority targets — their volume is already proven, so a brand-mix shift has outsized impact. A brand uplift layer redirects eligible purchases toward the distributor's private-label alternatives.</div>
       <div class="finding-image"><img src="Gemini_Generated_Image_pzgf65pzgf65pzgf (1).png" alt="Illustration comparing the active base's private-label share against high-spending customers' opportunity for private-label uplift"></div>
     </div>
 
@@ -698,108 +698,108 @@ const demoData = [
     id: 'CUST-001', cluster: 1, segment: 'PRIMARY CARE', sub: 'PHYSICIAN OFFICE',
     has_history: true,
     hybrid: [
-      { id: '684759', name: 'TEST STRIP, BLD GLUC TRUEMETRIX PRO MULTI PT', score: 1.0 },
-      { id: '730562', name: 'LANCET, TRUEPLUS SM STR 30G (100/BX)', score: 0.8315 },
-      { id: '680001', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.5822 },
-      { id: '31904040', name: 'LANCET, TWIST TOP BLU 30G (100/BX 50BX/CS)', score: 0.4742 },
-      { id: '35372', name: 'PAD, ALCOHOL PREP STR LG (100/BX 10BX/CS)', score: 0.3504 }
+      { id: 'SKU-1001', name: 'TEST STRIP, BLD GLUC MEDTRACK PRO MULTI PT', score: 1.0 },
+      { id: 'SKU-1002', name: 'LANCET, CAREFLEX SM STR 30G (100/BX)', score: 0.8315 },
+      { id: 'SKU-1003', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.5822 },
+      { id: 'SKU-1004', name: 'LANCET, TWIST TOP BLU 30G (100/BX 50BX/CS)', score: 0.4742 },
+      { id: 'SKU-1005', name: 'PAD, ALCOHOL PREP STR LG (100/BX 10BX/CS)', score: 0.3504 }
     ],
     complement: [
-      { id: '883204', name: 'CERVICAL COLLAR, STIFFNECK SELECT ADJ', score: 1.0 },
-      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 0.9471 },
-      { id: '22194', name: 'CUP, MED GRAD W/LIP 1OZ (100/SL) MGM16', score: 0.9246 },
-      { id: '635094', name: "CANNULA, NASAL CONTRD LF ADLT 7' (50/CS)", score: 0.8159 },
-      { id: '684759', name: 'TEST STRIP, BLD GLUC TRUEMETRIX PRO MULTI PT', score: 0.6446 }
+      { id: 'SKU-1006', name: 'CERVICAL COLLAR, STIFFNECK SELECT ADJ', score: 1.0 },
+      { id: 'SKU-1007', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 0.9471 },
+      { id: 'SKU-1008', name: 'CUP, MED GRAD W/LIP 1OZ (100/SL) MGM16', score: 0.9246 },
+      { id: 'SKU-1009', name: "CANNULA, NASAL CONTRD LF ADLT 7' (50/CS)", score: 0.8159 },
+      { id: 'SKU-1001', name: 'TEST STRIP, BLD GLUC MEDTRACK PRO MULTI PT', score: 0.6446 }
     ]
   },
   {
     id: 'CUST-002', cluster: 3, segment: 'PRIMARY CARE', sub: 'GOVERNMENT-PRIMARY CARE',
     has_history: true,
     hybrid: [
-      { id: '413107', name: "SPONGE, CVR 4\"X3\" STR 2'S (2/PK 25PK/TR)", score: 1.0 },
-      { id: '1005421', name: 'EYE WASH, OPHTHALMIC SOL 4OZ (48/CS)', score: 0.9120 },
-      { id: '232797', name: 'APPLICATOR, COTTONTIP STR 6\" (2/PK 100PK/BX)', score: 0.7844 },
-      { id: '884638', name: 'GLOVE, EXAM NTRL SM N/S 3.0 (100/BX 10BX/CS)', score: 0.6530 },
-      { id: '21969', name: 'PAD, ALCOHOL PREP STR MED (200/BX 20BX/CS)', score: 0.5210 }
+      { id: 'SKU-1010', name: "SPONGE, CVR 4\"X3\" STR 2'S (2/PK 25PK/TR)", score: 1.0 },
+      { id: 'SKU-1011', name: 'EYE WASH, OPHTHALMIC SOL 4OZ (48/CS)', score: 0.9120 },
+      { id: 'SKU-1012', name: 'APPLICATOR, COTTONTIP STR 6\" (2/PK 100PK/BX)', score: 0.7844 },
+      { id: 'SKU-1013', name: 'GLOVE, EXAM NTRL SM N/S 3.0 (100/BX 10BX/CS)', score: 0.6530 },
+      { id: 'SKU-1014', name: 'PAD, ALCOHOL PREP STR MED (200/BX 20BX/CS)', score: 0.5210 }
     ],
     complement: [
-      { id: '575804', name: 'SWABSTICK, PVP STR (3/PK 25PK/BX 10BX/CS)', score: 1.0 },
-      { id: '884650', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (100/BX 10BX/CS)', score: 0.8832 },
-      { id: '681622', name: 'GLOVE, EXAM NTRL LG N/S 3.0 (250/BX 10BX/CS)', score: 0.7601 },
-      { id: '795942', name: 'GLOVE, SURG LTX 7.5 STR2 SMTH (50PR/BX 4BX/CS)', score: 0.6244 },
-      { id: '488505', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.5113 }
+      { id: 'SKU-1015', name: 'SWABSTICK, PVP STR (3/PK 25PK/BX 10BX/CS)', score: 1.0 },
+      { id: 'SKU-1016', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (100/BX 10BX/CS)', score: 0.8832 },
+      { id: 'SKU-1017', name: 'GLOVE, EXAM NTRL LG N/S 3.0 (250/BX 10BX/CS)', score: 0.7601 },
+      { id: 'SKU-1018', name: 'GLOVE, SURG LTX 7.5 STR2 SMTH (50PR/BX 4BX/CS)', score: 0.6244 },
+      { id: 'SKU-1019', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.5113 }
     ]
   },
   {
     id: 'CUST-003', cluster: 7, segment: 'LONG TERM CARE', sub: 'SKILLED NURSING FACILITY',
     has_history: false,
     hybrid: [
-      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 1.0 },
-      { id: '680001', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.8901 },
-      { id: '603597', name: 'CONTAINER, SHARPS RED 5QT HORIZ (10/BX 2BX/CS)', score: 0.7712 },
-      { id: '162181', name: 'SPONGE, GAUZE 8PLY N/S 4"X4" (200/PK 20PK/CS)', score: 0.6540 },
-      { id: '122432', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.5388 }
+      { id: 'SKU-1007', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 1.0 },
+      { id: 'SKU-1003', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.8901 },
+      { id: 'SKU-1020', name: 'CONTAINER, SHARPS RED 5QT HORIZ (10/BX 2BX/CS)', score: 0.7712 },
+      { id: 'SKU-1021', name: 'SPONGE, GAUZE 8PLY N/S 4"X4" (200/PK 20PK/CS)', score: 0.6540 },
+      { id: 'SKU-1022', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.5388 }
     ],
     complement: [
-      { id: '849944', name: 'TESTOSTERONE, SDV 200MG/ML 1ML PFIZER CIIIN', score: 1.0 },
-      { id: '632858', name: 'NEBULIZER, W/MOUTHPC LF SM VOL 7\'TU 6"FLEX (50/CS)', score: 0.9102 },
-      { id: '257344', name: 'SUPARTZ FX, SYR 10MG/ML 2.5ML', score: 0.8033 },
-      { id: '484524', name: 'SPONGE, GAUZE 8PLY STR 2\'S 4"X4" (2/PK 50PK/BX)', score: 0.7215 },
-      { id: '79929', name: 'IV ADMIN SET, BASIC 15DRP 79"LL (50/CS) BBRAUN', score: 0.6044 }
+      { id: 'SKU-1023', name: 'TESTOSTERONE, SDV 200MG/ML 1ML PFIZER CIIIN', score: 1.0 },
+      { id: 'SKU-1024', name: 'NEBULIZER, W/MOUTHPC LF SM VOL 7\'TU 6"FLEX (50/CS)', score: 0.9102 },
+      { id: 'SKU-1025', name: 'SUPARTZ FX, SYR 10MG/ML 2.5ML', score: 0.8033 },
+      { id: 'SKU-1026', name: 'SPONGE, GAUZE 8PLY STR 2\'S 4"X4" (2/PK 50PK/BX)', score: 0.7215 },
+      { id: 'SKU-1027', name: 'IV ADMIN SET, BASIC 15DRP 79"LL (50/CS) BBRAUN', score: 0.6044 }
     ]
   },
   {
     id: 'CUST-004', cluster: 5, segment: 'POST ACUTE CARE', sub: 'HOME HEALTH',
     has_history: true,
     hybrid: [
-      { id: '602673', name: 'WIPE, GERMICIDE LG 6"X6.75" (160/BX 12BX/CS)', score: 1.0 },
-      { id: '778914', name: 'HYALGAN, SYR 20MG/2ML', score: 0.8760 },
-      { id: '169424', name: 'SPONGE, N/WOVN 4PLY N/S 2"X2" (200/PK)', score: 0.7430 },
-      { id: '633397', name: 'NEBULIZER, W/MOUTHPC LF ADLT 7TU (50/CS)', score: 0.6210 },
-      { id: '851228', name: 'NEEDLE, INSULIN PEN 32GX5/32" (100/BX 30BX/CS)', score: 0.4980 }
+      { id: 'SKU-1028', name: 'WIPE, GERMICIDE LG 6"X6.75" (160/BX 12BX/CS)', score: 1.0 },
+      { id: 'SKU-1029', name: 'HYALGAN, SYR 20MG/2ML', score: 0.8760 },
+      { id: 'SKU-1030', name: 'SPONGE, N/WOVN 4PLY N/S 2"X2" (200/PK)', score: 0.7430 },
+      { id: 'SKU-1031', name: 'NEBULIZER, W/MOUTHPC LF ADLT 7TU (50/CS)', score: 0.6210 },
+      { id: 'SKU-1032', name: 'NEEDLE, INSULIN PEN 32GX5/32" (100/BX 30BX/CS)', score: 0.4980 }
     ],
     complement: [
-      { id: '773266', name: 'BASIN, WASH GRAPHITE RECTANGLE 7QT (50/CS)', score: 1.0 },
-      { id: '790015', name: 'TISSUE, FACIAL FLAT BOX 2PLY WHT 8.37"X8.07"', score: 0.8814 },
-      { id: '14670', name: 'SOD CHL, IVSOL 0.9% PVC-DEHP FREE 100ML/150ML', score: 0.7623 },
-      { id: '775109', name: 'ELECTRODE, EMS F/12 LEAD EKG AMR ONLY (10/PK)', score: 0.6401 },
-      { id: '163270', name: 'SPONGE, GAUZE 12PLY N/S 4"X4" (200/PK 10PK/CS)', score: 0.5202 }
+      { id: 'SKU-1033', name: 'BASIN, WASH GRAPHITE RECTANGLE 7QT (50/CS)', score: 1.0 },
+      { id: 'SKU-1034', name: 'TISSUE, FACIAL FLAT BOX 2PLY WHT 8.37"X8.07"', score: 0.8814 },
+      { id: 'SKU-1035', name: 'SOD CHL, IVSOL 0.9% PVC-DEHP FREE 100ML/150ML', score: 0.7623 },
+      { id: 'SKU-1036', name: 'ELECTRODE, EMS F/12 LEAD EKG AMR ONLY (10/PK)', score: 0.6401 },
+      { id: 'SKU-1037', name: 'SPONGE, GAUZE 12PLY N/S 4"X4" (200/PK 10PK/CS)', score: 0.5202 }
     ]
   },
   {
     id: 'CUST-005', cluster: 2, segment: 'PHYSICIAN OFFICE', sub: 'SPECIALTY CARE',
     has_history: false,
     hybrid: [
-      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 1.0 },
-      { id: '35372', name: 'PAD, ALCOHOL PREP STR LG (100/BX 10BX/CS)', score: 0.9234 },
-      { id: '122432', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.8010 },
-      { id: '680001', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.6780 },
-      { id: '488505', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.5540 }
+      { id: 'SKU-1007', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 1.0 },
+      { id: 'SKU-1005', name: 'PAD, ALCOHOL PREP STR LG (100/BX 10BX/CS)', score: 0.9234 },
+      { id: 'SKU-1022', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.8010 },
+      { id: 'SKU-1003', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (250/BX 10BX/CS)', score: 0.6780 },
+      { id: 'SKU-1019', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.5540 }
     ],
     complement: [
-      { id: '603597', name: 'CONTAINER, SHARPS RED 5QT HORIZ (10/BX 2BX/CS)', score: 1.0 },
-      { id: '851228', name: 'NEEDLE, INSULIN PEN 32GX5/32" (100/BX 30BX/CS)', score: 0.8740 },
-      { id: '257344', name: 'SUPARTZ FX, SYR 10MG/ML 2.5ML', score: 0.7512 },
-      { id: '778914', name: 'HYALGAN, SYR 20MG/2ML', score: 0.6330 },
-      { id: '163270', name: 'SPONGE, GAUZE 12PLY N/S 4"X4" (200/PK 10PK/CS)', score: 0.5144 }
+      { id: 'SKU-1020', name: 'CONTAINER, SHARPS RED 5QT HORIZ (10/BX 2BX/CS)', score: 1.0 },
+      { id: 'SKU-1032', name: 'NEEDLE, INSULIN PEN 32GX5/32" (100/BX 30BX/CS)', score: 0.8740 },
+      { id: 'SKU-1025', name: 'SUPARTZ FX, SYR 10MG/ML 2.5ML', score: 0.7512 },
+      { id: 'SKU-1029', name: 'HYALGAN, SYR 20MG/2ML', score: 0.6330 },
+      { id: 'SKU-1037', name: 'SPONGE, GAUZE 12PLY N/S 4"X4" (200/PK 10PK/CS)', score: 0.5144 }
     ]
   },
   {
     id: 'CUST-006', cluster: 9, segment: 'LONG TERM CARE', sub: 'ASSISTED LIVING',
     has_history: true,
     hybrid: [
-      { id: '575804', name: 'SWABSTICK, PVP STR (3/PK 25PK/BX 10BX/CS)', score: 1.0 },
-      { id: '488505', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.8620 },
-      { id: '484524', name: "SPONGE, GAUZE 8PLY STR 2'S 4\"X4\" (2/PK 50PK/BX)", score: 0.7340 },
-      { id: '190295', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 0.6050 },
-      { id: '132430', name: "BANDAGE, COHSV FLEXICON 4\"X5YD (18/BX 5BX/CS)", score: 0.4870 }
+      { id: 'SKU-1015', name: 'SWABSTICK, PVP STR (3/PK 25PK/BX 10BX/CS)', score: 1.0 },
+      { id: 'SKU-1019', name: 'GLOVE, EXAM NTRL SM N/S CHEMO 3.5C (200/BX)', score: 0.8620 },
+      { id: 'SKU-1026', name: "SPONGE, GAUZE 8PLY STR 2'S 4\"X4\" (2/PK 50PK/BX)", score: 0.7340 },
+      { id: 'SKU-1007', name: 'BANDAGE, ADHSV FABR STRP 1X3 (100/BX 24BX/CS)', score: 0.6050 },
+      { id: 'SKU-1038', name: "BANDAGE, COHSV FLEXICON 4\"X5YD (18/BX 5BX/CS)", score: 0.4870 }
     ],
     complement: [
-      { id: '773266', name: 'BASIN, WASH GRAPHITE RECTANGLE 7QT (50/CS)', score: 1.0 },
-      { id: '790015', name: 'TISSUE, FACIAL FLAT BOX 2PLY WHT 8.37"X8.07"', score: 0.8910 },
-      { id: '122432', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.7720 },
-      { id: '681622', name: 'GLOVE, EXAM NTRL LG N/S 3.0 (250/BX 10BX/CS)', score: 0.6530 },
-      { id: '884650', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (100/BX 10BX/CS)', score: 0.5341 }
+      { id: 'SKU-1033', name: 'BASIN, WASH GRAPHITE RECTANGLE 7QT (50/CS)', score: 1.0 },
+      { id: 'SKU-1034', name: 'TISSUE, FACIAL FLAT BOX 2PLY WHT 8.37"X8.07"', score: 0.8910 },
+      { id: 'SKU-1022', name: 'SPONGE, GAUZE 8PLY N/S 2"X2" (200/PK 25PK/CS)', score: 0.7720 },
+      { id: 'SKU-1017', name: 'GLOVE, EXAM NTRL LG N/S 3.0 (250/BX 10BX/CS)', score: 0.6530 },
+      { id: 'SKU-1016', name: 'GLOVE, EXAM NTRL MED N/S 3.0 (100/BX 10BX/CS)', score: 0.5341 }
     ]
   }
 ];
@@ -812,7 +812,7 @@ function recRow(r, i, type) {
   return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #1f2e21">
     <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5a7a5c;min-width:16px;text-align:right;padding-top:2px">${i+1}</span>
     <div style="flex:1">
-      <div style="font-size:11px;color:#5a7a5c;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">ITEM-${r.id}</div>
+      <div style="font-size:11px;color:#5a7a5c;font-family:'IBM Plex Mono',monospace;margin-bottom:3px">${r.id}</div>
       <div style="font-size:12px;color:#e8f0e9;margin-bottom:5px;line-height:1.4">${r.name}</div>
       <div style="height:3px;background:${bgBar};border-radius:2px;overflow:hidden">
         <div style="height:100%;width:${Math.round(r.score*100)}%;background:${col};border-radius:2px"></div>
